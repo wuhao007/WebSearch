@@ -61,9 +61,9 @@ int main()
            //docs = (v[0] + " " + v[1] + " ");
            myfile << v[0];
            docID.clear();
+           fre.clear();
            docID.push_back(id);
            fre[id] = 1;
-           fre.clear();
         }
     }
     file.close();
