@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <list>
+#include <map>
 using namespace std;
 int main() 
 { 
@@ -13,15 +15,28 @@ int main()
     lexicon.open("lexicon.rpt", ios::app | ios::binary);
     string str; 
     string pre("");
-    string docs("");
+    int preFre = -1;
+    //string docs("");
+    list<int> docID;
+    map<int,int> fre;
     long line = 0;
     string file_name("");
     while (getline(file, str))
     {
         vector<string> v = split(str);
+        int id = atoi(v[1].c_str());
         if (pre == v[0])
         {
-           docs += (v[1] + " ");  
+           docID.push_back(id);
+           //docs += (v[1] + " ");  
+           if (preFre == id)
+           {
+               fre[id]++;
+           }
+           else
+           {
+               fre[id] = 1;
+           }
         }
         else
         {
@@ -35,9 +50,18 @@ int main()
               myfile.open(file_name.c_str(), ios::app | ios::binary);
            }
            pre = v[0];
-           myfile << docs << endl;
+           preFre = id;
+           docID.sort();
+           for (list<int>::iterator it = docID.begin(); it != docID.end(); it++)
+           {
+               myfile << "  " << *it << " " << fre[*it];
+           }
+           myfile << endl;
            lexicon << v[0] << " " << file_name << " " << (line%10000)+1 << endl;
-           docs = (v[0] + " " + v[1] + " ");
+           //docs = (v[0] + " " + v[1] + " ");
+           myfile << v[0];
+           docID.clear();
+           fre.clear();
         }
     }
     file.close();
