@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <set>
 using namespace std;
 int main() 
 { 
@@ -18,6 +19,7 @@ int main()
     int preFre = -1;
     //string docs("");
     list<int> docID;
+    set<int> idset;
     map<int,int> fre;
     long line = 0;
     string file_name("");
@@ -27,9 +29,9 @@ int main()
         int id = atoi(v[1].c_str());
         if (pre == v[0])
         {
-           docID.push_back(id);
+           idset.insert(id);
            //docs += (v[1] + " ");  
-           if (preFre == id)
+           if (fre.find(id) != fre.end())
            {
                fre[id]++;
            }
@@ -51,6 +53,11 @@ int main()
            }
            pre = v[0];
            preFre = id;
+           docID.clear();
+           for (set<int>::iterator it = idset.begin(); it != idset.end(); it++)
+           {
+               docID.push_back(*it);
+           }
            docID.sort();
            for (list<int>::iterator it = docID.begin(); it != docID.end(); it++)
            {
@@ -60,8 +67,10 @@ int main()
            lexicon << v[0] << " " << file_name << " " << (line%10000)+1 << endl;
            //docs = (v[0] + " " + v[1] + " ");
            myfile << v[0];
-           docID.clear();
            fre.clear();
+           idset.clear();
+           idset.insert(id);
+           fre[id] = 1;
         }
     }
     file.close();
