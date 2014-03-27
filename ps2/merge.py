@@ -1,68 +1,41 @@
-file = open('merge.rpt', 'rb')
-myfile = open('merge.map', 'ab')
 lexicon = open('lexicon.rpt', 'ab')
-string pre("");
-    int preFre = -1;
+pre = ''
+global myfile
+myfile = None
+line = 0
+global file_name
+file_name = ''
+words = {}
+for line_str in open('merge1.rpt', 'rb'):
+    v = line_str.split()
+    word = v[0]
+    id = int(v[1])
+    if word in words:
+        fre = words[v[0]]
+        if id in fre:
+            fre[id] += 1
+        else:
+            fre[id] = 1
+    else:
+        if line % 10000 == 0:
+            if myfile != None:
+                myfile.close()
+            file_name = 'merge_' + str(line/10000) + '.map'
+            myfile = open(file_name, 'ab')
+        if pre in words:
+            myfile.write(pre)
+            for k in sorted(words[pre].keys()):
+                myfile.write('  ' + str(k) + ' ' + str(words[pre][k]))
+            myfile.write('\n')
 
-    //string docs("");
-    list<int> docID;
-    set<int> idset;
-    map<int,int> fre;
+        lexicon.write(word + ' ' + file_name + ' ' + str(line % 10000 + 1) + '\n')
+        
+        words[word] = {}
+        words[word][id] = 1
+        line += 1
+        words.pop(pre, None)
+        pre = word
 
-    long line = 0;
-    string file_name("");
-    while (getline(file, str))
-    {
-        vector<string> v = split(str);
-        int id = atoi(v[1].c_str());
-        if (pre == v[0])
-        {
-           idset.insert(id);
-           //docs += (v[1] + " ");  
-           if (fre.find(id) != fre.end())
-           {
-               fre[id]++;
-           }
-           else
-           {
-               fre[id] = 1;
-           }
-        }
-        else
-        {
-           if ((line++)%10000 == 0)
-           {
-              int file_num = line/10000;
-              ostringstream convert;
-              convert << file_num;
-              myfile.close();
-              file_name = "merge_" + convert.str() + ".map";
-              myfile.open(file_name.c_str(), ios::app | ios::binary);
-           }
-           pre = v[0];
-           preFre = id;
-           docID.clear();
-           for (set<int>::iterator it = idset.begin(); it != idset.end(); it++)
-           {
-               docID.push_back(*it);
-           }
-           docID.sort();
-           for (list<int>::iterator it = docID.begin(); it != docID.end(); it++)
-           {
-               myfile << "  " << *it << " " << fre[*it];
-           }
-           myfile << endl;
-           lexicon << v[0] << " " << file_name << " " << (line%10000)+1 << endl;
-           //docs = (v[0] + " " + v[1] + " ");
-           myfile << v[0];
-           fre.clear();
-           idset.clear();
-           idset.insert(id);
-           fre[id] = 1;
-        }
-    }
-    file.close();
-    myfile.close();
-
-    return 0;
-}
+#print words
+#file.close()
+#myfile.close()
