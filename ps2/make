@@ -1,2 +1,2 @@
 g++ index_data.cc split.cc split.h parser.h parser.c -lz -o index_data
-g++ merge.cc split.cc split.h -o merge
+#g++ merge.cc split.cc split.h -o merge

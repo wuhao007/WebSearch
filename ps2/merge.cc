@@ -8,8 +8,8 @@
 #include <map>
 #include <set>
 using namespace std;
-int main() 
-{ 
+int main()
+{
     ifstream file("merge.rpt");
     ofstream myfile, lexicon;
     myfile.open("merge.map", ios::app | ios::binary);
