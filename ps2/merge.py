@@ -37,5 +37,5 @@ for line_str in open('merge1.rpt', 'rb'):
         pre = word
 
 #print words
-#file.close()
-#myfile.close()
+lexicon.close()
+myfile.close()
