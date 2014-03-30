@@ -8,6 +8,7 @@ mv a.out index_data
 #mv a.out merge
 read -p "Please input start number: " start
 read -p "Please input stop number: " stop
+touch docID_url.rpt
 for (( i=${start}; i<${stop}; i=i+100 ))
 do
     tar -xvf ../vol_${i}_*.tar

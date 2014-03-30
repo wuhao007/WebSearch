@@ -1,12 +1,28 @@
 lexicon = open('lexicon.rpt', 'ab')
 pre = ''
 global myfile
-myfile = None
+myfile = open('inverted.list', 'ab')
+
 line = 0
-global file_name
-file_name = ''
+global word_fre
+chuck_size = 10
+
+word_fre = ''
 words = {}
-for line_str in open('merge1.rpt', 'rb'):
+
+def print_merge():
+    if pre in words:
+        word_fre = ''
+        n = 0
+        for k in words[pre]:
+            n += 1
+            myfile.write(' ' + str(k))
+            word_fre += (' ' + str(words[pre][k]))
+            if n % chuck_size == 0:
+                myfile.write(word_fre)
+                word_fre = ''
+
+for line_str in open('merge.rpt', 'rb'):
     v = line_str.split()
     word = v[0]
     id = int(v[1])
@@ -17,16 +33,7 @@ for line_str in open('merge1.rpt', 'rb'):
         else:
             fre[id] = 1
     else:
-        if line % 10000 == 0:
-            if myfile != None:
-                myfile.close()
-            file_name = 'merge_' + str(line/10000) + '.map'
-            myfile = open(file_name, 'ab')
-        if pre in words:
-            myfile.write(pre)
-            for k in sorted(words[pre].keys()):
-                myfile.write('  ' + str(k) + ' ' + str(words[pre][k]))
-            myfile.write('\n')
+        print_merge()
 
         lexicon.write(word + ' ' + file_name + ' ' + str(line % 10000 + 1) + '\n')
         
@@ -35,6 +42,8 @@ for line_str in open('merge1.rpt', 'rb'):
         line += 1
         words.pop(pre, None)
         pre = word
+
+print_merge()
 
 #print words
 lexicon.close()

@@ -80,14 +80,14 @@ int main (int argc, char* argv[])
         for (vector<string>::iterator it = indexes.begin(); it != indexes.end(); ++it)
         {
             vector<string> status = split(*it);
-            cout << *it << endl;
+            //cout << *it << endl;
             string url = status[0];
             string len = status[3];
 
             //cout << "size " << atoi(len.c_str()) << " length " << length << endl;
             int length = atoi(len.c_str());
             //cout << "length " << length << endl;
-            char* buffer=(char*)malloc(length);
+            char* buffer = (char*)malloc(length);
             gzread(cData,buffer,length);
             char* pool = (char*)malloc(2*length+1);
             int ret = parser(buffer, pool, 2*length+1);
@@ -95,11 +95,11 @@ int main (int argc, char* argv[])
 
             myfile.open(docID_url.c_str(), ios::app | ios::binary);
             myfile << doc_num << " " << url << endl;
-            cout << "doc_num " << doc_num << endl;
+            //cout << "doc_num " << doc_num << endl;
             myfile.close();
 
             myfile.open((file_num + ".txt").c_str(), ios::app | ios::binary);
-            cout << "ret " << ret << endl;
+            //cout << "ret " << ret << endl;
 
             if (ret > 0)
             {
