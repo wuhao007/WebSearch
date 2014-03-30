@@ -1,6 +1,7 @@
 #!/bin/bash
 rm -rf data *txt *rpt *map vol_*
 ./make
+mv a.out index_data
 #g++ -w index_data.cc split.cc split.h parser.h parser.c -lz
 #mv a.out index_data
 #g++ -w merge.cc split.cc split.h
@@ -22,4 +23,4 @@ do
     sort $dir/*txt > sort_${i}.txt
 done
 sort -m sort_*.txt > merge.rpt
-#python merge.py
+python merge2.py

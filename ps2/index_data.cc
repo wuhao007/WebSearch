@@ -107,11 +107,11 @@ int main (int argc, char* argv[])
                 vector<string> words = split(pool, '\n');
                 for (vector<string>::iterator wit = words.begin(); wit != words.end(); wit++)
                 {
-                    ostringstream num_convert;
-                    num_convert << doc_num;
-                    string docNum(num_convert.str());
+                    //ostringstream num_convert;
+                    //num_convert << doc_num;
+                    //string docNum(num_convert.str());
                     vector<string> word = split(*wit);
-                    myfile << word[0] << ' ' << string(7-docNum.size(),' ') << docNum << endl;
+                    myfile << word[0] << " " << doc_num << endl;
                 }
             }
             myfile.close();
