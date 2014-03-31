@@ -1,7 +1,5 @@
 import math
 
-import index
-
 class BM25(object):
     """ Uses a SimpleIndex to score a document using Okapi BM 25.
     """
