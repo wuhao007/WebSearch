@@ -1,11 +1,15 @@
 #define INDEX_CHUNK 409600 //50KB
 //#define DATA_CHUNK 2097152 //2.5MB
 #include <zlib.h>
+#include <ctype.h>
+#include <algorithm>
+#include <iterator>
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <set>
 #include "split.h"
 #include "parser.h"
 using namespace std;
@@ -20,21 +24,32 @@ using namespace std;
  *@return the buffer
 
  ******************************************/
-string memAlloc(gzFile* fileName, int size)    
+string make_lowercase(const string& in )
 {
-    char* buffer=(char*)malloc(size);
-    int oldSize=size;
+  string out;
 
-    int count=0;             //The number of bytes that already read
+  transform( in.begin(), in.end(), std::back_inserter( out ), ::tolower );
+  return out;
+}
+
+string memAlloc(gzFile* fileName, int length)    
+{
+//    int oldSize=size;
+
+//    int count=0;             //The number of bytes that already read
+    char* buffer = new char [length];
     while (!gzeof(fileName))
     {
-        count+=gzread(fileName,buffer+count,oldSize);
+//        count+=gzread(fileName,buffer+count,oldSize);
+        gzread(fileName,buffer, length);
+/*
         if (count==size)                    // Reallocate when buffer is full
         {
             oldSize=size;
             size*=2;
             buffer=(char*)realloc(buffer,size);
         }
+*/
     }
     string content(buffer);
     free(buffer);
@@ -43,6 +58,17 @@ string memAlloc(gzFile* fileName, int size)
 
 int main (int argc, char* argv[])
 {
+    ifstream is ("words.list");
+    string english_words;
+    getline(is, english_words);
+    set<string> english_words_set;
+    vector<string> english_words_vector = split(english_words); 
+    for (vector<string>::iterator it = english_words_vector.begin(); it != english_words_vector.end(); it++)
+    {
+        english_words_set.insert(*it);
+        //cout << *it << endl;
+    }
+
     const string docID_url = "docID_url.rpt";
     long doc_num = atoi(argv[2]);
     //cout << "doc_num " << doc_num << endl;
@@ -87,14 +113,14 @@ int main (int argc, char* argv[])
             //cout << "size " << atoi(len.c_str()) << " length " << length << endl;
             int length = atoi(len.c_str());
             //cout << "length " << length << endl;
-            char* buffer = (char*)malloc(length);
+            char* buffer = new char [length];
             gzread(cData,buffer,length);
-            char* pool = (char*)malloc(2*length+1);
+            char* pool = new char [2*length+1];
             int ret = parser(buffer, pool, 2*length+1);
             //cout << buffer << endl;
 
             myfile.open(docID_url.c_str(), ios::app | ios::binary);
-            myfile << doc_num << " " << url << endl;
+            myfile << doc_num << " " << url << " " << len << endl;
             //cout << "doc_num " << doc_num << endl;
             myfile.close();
 
@@ -111,7 +137,10 @@ int main (int argc, char* argv[])
                     //num_convert << doc_num;
                     //string docNum(num_convert.str());
                     vector<string> word = split(*wit);
-                    myfile << word[0] << " " << doc_num << endl;
+                    if (english_words_set.find(make_lowercase(word[0])) != english_words_set.end())    
+                    {
+                        myfile << make_lowercase(word[0]) << " " << doc_num << endl;
+                    }
                 }
             }
             myfile.close();
