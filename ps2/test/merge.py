@@ -1,4 +1,5 @@
 lexicon = open('lexicon.rpt', 'ab')
+frequency = open('frequency.rpt', 'ab')
 global pre
 global merge
 pre = ''
@@ -6,36 +7,24 @@ myfile = open('inverted.list', 'ab')
 
 chuck_size = 10
 words = {}
+words_map = {}
 
 def print_merge():
     if pre in words:
-        lexicon.write(pre + ' ')
-        start = myfile.tell()
         myfile.write(pre + ' ')
-        n = 0
-        word_fre = ''
-        docs = ''
+        lexicon.write(pre + ' ')
+        frequency.write(pre + ' ')
+        start = myfile.tell()
         fre = words[pre]
-        step = ''
-        k = ''
         for k in sorted(fre.keys()):
-            if n == 0:
-                step += (str(k) + ' ')
-            n += 1
             myfile.write(str(k) + ' ')
-            #myfile.write(bytes(k))
-            #myfile.write(bytes(fre[k]))
-            word_fre += (str(fre[k]) + ' ')
-            if n % chuck_size == 0:
-                step += (str(k) + ' ')
-                myfile.write(word_fre)
-                word_fre = ''
-        myfile.write(word_fre)
+            frequency.write(str(fre[k]) + ' ')
         myfile.write('\n')
-        lexicon.write(str(start) + ' ' + str(myfile.tell()) + ' ' + step + str(k) + ' ')
-        lexicon.write('\n')
+        frequency.write('\n')
+        lexicon.write(str(start) + ' ' + str(myfile.tell()) + '\n') 
 
 merge_rpt = open('merge.rpt', 'rb')
+line = 0
 for line_str in merge_rpt:
     v = line_str.split()
     word = v[0]
@@ -48,14 +37,18 @@ for line_str in merge_rpt:
             fre[id] = 1
     else:
         print_merge()
-
+        line += 1
+        words_map[word] = line
         words[word] = {}
         words[word][id] = 1
         if pre in words: 
             words.pop(pre, None)
         pre = word
 print_merge()
+import pickle
+pickle.dump(words_map, open('words.map', 'wb'))
 
 #print words
 lexicon.close()
+frequency.close()
 myfile.close()

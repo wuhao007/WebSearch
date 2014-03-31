@@ -20,8 +20,9 @@ do
     ./index_data $i $line
     dir=vol_${i}_*
     #echo $dir
-    #sort -u $dir/*txt > sort_${i}.txt
-    sort $dir/*txt > sort_${i}.txt
+    #sort -u ${dir}/*txt > sort_${i}.txt
+    sort ${dir}/*txt > sort_${i}.txt
+    rm -rf $dir
 done
 sort -m sort_*.txt > merge.rpt
-python merge2.py
+#python merge2.py
