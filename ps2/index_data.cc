@@ -119,16 +119,11 @@ int main (int argc, char* argv[])
             int ret = parser(buffer, pool, 2*length+1);
             //cout << buffer << endl;
 
-            myfile.open(docID_url.c_str(), ios::app | ios::binary);
-            myfile << doc_num << " " << url << " " << len << endl;
-            //cout << "doc_num " << doc_num << endl;
-            myfile.close();
-
-            myfile.open((file_num + ".txt").c_str(), ios::app | ios::binary);
             //cout << "ret " << ret << endl;
 
             if (ret > 0)
             {
+		myfile.open((file_num + ".txt").c_str(), ios::app | ios::binary);
                 //cout << "parse_num " << doc_num << endl;
                 vector<string> words = split(pool, '\n');
                 for (vector<string>::iterator wit = words.begin(); wit != words.end(); wit++)
@@ -142,12 +137,17 @@ int main (int argc, char* argv[])
                         myfile << make_lowercase(word[0]) << " " << doc_num << endl;
                     }
                 }
+                myfile.close();
+
+		myfile.open(docID_url.c_str(), ios::app | ios::binary);
+		myfile << doc_num << " " << url << " " << len << " " << words.size() << endl;
+		//cout << "doc_num " << doc_num << endl;
+		myfile.close();
+		doc_num++;
             }
-            myfile.close();
 
             free(pool);
             free(buffer);
-            doc_num++;
         }
     }
     return 0;
