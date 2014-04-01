@@ -1,5 +1,5 @@
 import math
-
+words_score = {}
 class BM25(object):
     """ Uses a SimpleIndex to score a document using Okapi BM 25.
     """
@@ -18,7 +18,7 @@ class BM25(object):
         # mathematical description
         N = self.N
         num = words_map[term]
-        ft = len(inverted_list[num-1].split()) - 1
+        ft = inverted_list[num-1].count(' ') - 1
         #print term
         #print ft
         #print math.log((N - ft + 0.5)/(ft + 0.5))
@@ -53,11 +53,11 @@ class BM25(object):
         return score
 
 import pickle
-
+import gzip
 words_map = pickle.load(open('words.map', 'rb'))
-inverted_list = open('inverted.list', 'rb').readlines()
-docID_url = open('docID_url.rpt', 'rb').readlines()
-frequency = open('frequency.rpt', 'rb').readlines()
+inverted_list = gzip.open('inverted.list.gz', 'rb').readlines()
+docID_url = gzip.open('docID_url.rpt.gz', 'rb').readlines()
+frequency = gzip.open('frequency.rpt.gz', 'rb').readlines()
 
 import string
 def nextGEQ(old_words):
@@ -67,18 +67,47 @@ def nextGEQ(old_words):
             words += i
         else:
             words += ' '
-    query = words.split()
     contents = []
-    for word in query:
+    query = []
+    for word in words.split():
         if word in words_map:
             num = words_map[word]
             contents += [inverted_list[num-1].split()[1:]]
-        #else:
-            #print "Your search - " + word + " - did not match any documents."
-            #return
-    common_list = set(contents[0])
+            query += [word]
+        else:
+            print "Your search - " + word + " - did not match any documents."
+            continue
+    if contents == []:
+        print "Your search - " + old_words + " - did not match any documents."
+        return
+
+    common_list = []
+
+    def mergeTwoList(a, b):
+        clst = []
+        i = 0
+        j = 0
+        while i < len(a) and j < len(b):
+            ai = int(a[i])
+            bj = int(b[j])
+            if ai == bj:
+                clst += [ai]
+                i += 1
+                j += 1
+            elif ai < bj:
+                i += 1
+            elif ai > bj:
+                j += 1
+        return clst
+               
+    common_list = contents[0]
     for content in contents:
-        common_list = common_list.intersection(set(content))
+        common_list = mergeTwoList(common_list, content)
+        print common_list
+        
+
+    #for content in contents:
+    #    common_list = common_list.intersection(set(content))
 
     #print common_list
 
@@ -96,8 +125,9 @@ def nextGEQ(old_words):
     # Score all documents
     scores = {}
     for i in common_list:
-        document = int(i)
-        scores[document] = bm25.score(document, query)
+        scores[i] = bm25.score(i, query)
+        #document = int(i)
+        #scores[document] = bm25.score(document, query)
 
     sorted_docs = sorted(scores, key=lambda k: scores[k], reverse=True)
 
