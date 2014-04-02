@@ -29,7 +29,7 @@ int main()
   cout << "decoded " << decoded << endl;
 */
 
-  const int len = 4;
+  const int len = 3;
   ofstream ofile ("inverted_list.vbyte", ofstream::binary);
   if (ofile.is_open())
   {
@@ -48,7 +48,10 @@ int main()
                   uint8_t to[len];
                   memset(to, len, 0);
                   uint32_t count_byte = VByte::encode(from, to);
-                  ofile << to; 
+                  for (int i = 0; i < len; i++)
+                  {
+                      ofile << to[i]; 
+                  }
               }
               lexicon << ofile.tellp() << endl; 
           }

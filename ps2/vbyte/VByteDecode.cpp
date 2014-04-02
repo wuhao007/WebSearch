@@ -29,7 +29,7 @@ int main()
   cout << "decoded " << decoded << endl;
 */
 
-  const int len = 4;
+  const int len = 3;
   ifstream ifile ("inverted_list.vbyte", ifstream::binary);
   if (ifile.is_open())
   {
@@ -48,6 +48,7 @@ int main()
               while (start < end)
               {
                   char buffer[len];
+                  memset(buffer, len, 0);
                   ifile.read(buffer, len);
 
                   uint8_t val[len];

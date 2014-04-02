@@ -1,3 +1,6 @@
-g++ VByte.cpp VByte.h VByteEncode.cpp split.h split.cc -o VByteEncode
-g++ VByte.cpp VByte.h VByteDecode.cpp split.h split.cc -o VByteDecode
-g++ VByte.cpp VByte.h VByteTest.cpp split.h split.cc -o VByteTest
+g++ VByte.cpp VByte.h VByteEncode.cpp split.h split.cc 
+mv a.out VByteEncode
+g++ VByte.cpp VByte.h VByteDecode.cpp split.h split.cc
+mv a.out VByteDecode
+g++ VByte.cpp VByte.h VByteTest.cpp split.h split.cc
+mv a.out VByteTest

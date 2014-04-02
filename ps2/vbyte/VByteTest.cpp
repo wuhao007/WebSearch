@@ -16,8 +16,10 @@ void display(uint8_t *bytes, uint32_t len) {
 
 int main()
 {
-  const int len = 8;
-  uint64_t from = 28038249122;
+  const int len = 9;
+  //uint64_t from = 28038249122;
+  //uint64_t from = 120118;
+  uint64_t from = 128;
   //uint64_t from = 2;
   uint8_t to[len];
   memset(to, len, 0);
@@ -51,8 +53,8 @@ int main()
   cout << "val:" << val << endl;
   uint64_t decoded;
   memset(to, len, 0);
-  //uint32_t byte_read = VByte::decode(&decoded, to);
-  uint32_t byte_read = VByte::decode(&decoded, val);
+  uint32_t byte_read = VByte::decode(&decoded, to);
+  //uint32_t byte_read = VByte::decode(&decoded, val);
   cout << "decode " << decoded << endl;
   return 0;
 }
