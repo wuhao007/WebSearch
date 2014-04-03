@@ -33,28 +33,37 @@ int main()
   lfile.close();
 
   ifstream ifile("otest.txt", ifstream::binary);
-  char buffer[len];
+  //char buffer[len];
   //string buffer;
-  ifile.read(buffer, len);
-  cout << "buffer:" << buffer << endl;
+  //cout << "buffer:" << buffer << endl;
   cout << "to:" << to << endl;
 
   uint8_t val[len];
   memset(val, len, 0);
-
-  memcpy(val, string(buffer).substr(0, len).c_str(), len);
-//  cout << "val:" << (val+offset) << '\n';
-/*
-  for (int i = 0; i< buffer.size(); i++)
+  for (int i = 0; i < len; i++)
   {
-    memset(to[i], 1, buffer[i]);
+     ifile.read((char *) &(val[i]), sizeof(val[i]));
   }
-*/
+
+  //memcpy(val, string(buffer).substr(0, len).c_str(), len);
+//  cout << "val:" << (val+offset) << '\n';
+
+  for (int i = 0; i< len; i++)
+  {
+     if (to[i] != val[i])
+     {
+        cout << "to " << to[i] << endl;
+        cout << "val " << val[i] << endl;
+        //cout << "buffer " << buffer[i] << endl;
+        cout << i << " is different" << endl;
+     }
+  }
   cout << "val:" << val << endl;
+
   uint64_t decoded;
   memset(to, len, 0);
-  uint32_t byte_read = VByte::decode(&decoded, to);
-  //uint32_t byte_read = VByte::decode(&decoded, val);
+  //uint32_t byte_read = VByte::decode(&decoded, to);
+  uint32_t byte_read = VByte::decode(&decoded, val);
   cout << "decode " << decoded << endl;
   return 0;
 }
