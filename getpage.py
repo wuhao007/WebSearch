@@ -124,12 +124,12 @@ Hummus Recipe
 }
 
 def get_page(url):
-#    return real_get_page(url)
-    if url in cache:
-        return cache[url]
-    else:
-        print "Page not in cache: " + url
-        return None
+    return real_get_page(url)
+#    if url in cache:
+#        return cache[url]
+#    else:
+#        print "Page not in cache: " + url
+#        return None
     
 def make_cache(seed):
     tocrawl = [seed]
