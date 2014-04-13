@@ -28,14 +28,14 @@ class Graph:
         assert self.has_node(node1)
         assert self.has_node(node2)
         self._nodes[node1].add(node2)
-        print node1, node2
-        fname = 'corpus.pkl'
+        fname = 'socialgraph.dat'
         try:
-            with open(fname, 'w') as fout:
-                fout.dump(str(node1), str(node2))
-                print "Succesfully wrote corpus to " + fname
+            with open(fname, 'a') as fout:
+                fout.write(str(node1) + '|' + str(node2) + '\n')
+                #print "Succesfully wrote corpus to " + fname
+                fout.close()
         except IOError, e:
-            print "Cannot write out corpus: " + str(e)
+            print "Cannot write out: " + str(e)
 
     def get_nodes(self):
         return frozenset(self._nodes)
