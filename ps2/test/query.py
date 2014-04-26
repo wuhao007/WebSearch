@@ -24,7 +24,7 @@ class BM25(object):
         #print math.log((N - ft + 0.5)/(ft + 0.5))
         return math.log((N - ft + 0.5)/(ft + 0.5))
 
-    def score(self, document_id, query):
+    def score(self, document_id, query, common_term, l):
         """ Calculates the Okapi BM25 score for a document
         """
         # To make the formula clear, we set up local variables in terms of the 
@@ -32,16 +32,18 @@ class BM25(object):
         D = document_id
         k1 = self.k1
         b = self.b
-        docID_info = docID_url[document_id - 1].split()
-        l = int(docID_info[2])
+        #docID_info = docID_url[document_id - 1].split()
+        #l = int(docID_info[2])
+        #l = common_len[document_id][0]
         avg_l = self.avg_l
 
         score = 0.0
         for term in query:
             idf = self.idf_weight(term)
-            num = words_map[term]
-            i = inverted_list[num - 1].split().index(str(document_id)) 
-            fdt = int(frequency[num - 1].split()[i])*1.0 / int(docID_info[3])
+            #num = words_map[term]
+            #i = inverted_list[num - 1].split().index(str(document_id)) 
+            #fdt = int(frequency[num - 1].split()[i])*1.0 / int(docID_info[3])
+            fdt = common_term[term][document_id]
             
             #print "fdt"+str(fdt)
             s = idf * (fdt * (k1 + 1)) / (fdt + k1 * (1 - b + b*l/avg_l))
@@ -105,6 +107,23 @@ def nextGEQ(old_words):
         common_list = mergeTwoList(common_list, content)
         print common_list
         
+    common_len = {}
+    for document_id in common_list:
+        docID_info = docID_url[document_id - 1].split()
+        common_len[document_id] = [int(docID_info[2]), int(docID_info[3])]
+
+    common_term = {}
+    for term in query:
+        num = words_map[term]
+        term_list = inverted_list[num - 1].split()
+        term_frequency = frequency[num - 1].split()
+        common_doc = {}
+        for document_id in common_list:
+            #docID_info = docID_url[document_id - 1].split()
+            #l = int(docID_info[2])
+            i = term_list.index(str(document_id)) 
+            common_doc[document_id] = int(term_frequency[i])*1.0 / common_len[document_id][1]
+        common_term[term] = common_doc
 
     #for content in contents:
     #    common_list = common_list.intersection(set(content))
@@ -125,7 +144,7 @@ def nextGEQ(old_words):
     # Score all documents
     scores = {}
     for i in common_list:
-        scores[i] = bm25.score(i, query)
+        scores[i] = bm25.score(i, query, common_term, common_len[i][0])
         #document = int(i)
         #scores[document] = bm25.score(document, query)
 
