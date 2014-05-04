@@ -22,6 +22,7 @@ api = tweepy.API(auth)
 user = api.me()
 
 def get_4sq(friend_twitter):
+    print friend_twitter
     return [page.entities['urls'] for page in api.user_timeline(id=friend_twitter) if page.source == 'foursquare']
 
 def get_all_friends(page):
@@ -29,9 +30,14 @@ def get_all_friends(page):
     #groups = json(page)['response']['user']['friends']['groups'][1]['items'][0]['id']
     for group in json.loads(page)['response']['user']['friends']['groups']:
         for item in group['items']:
-            friends.append(str(item['id']))
+            friends.append(item['id'])
             if 'contact' in item and 'twitter' in item['contact']:
-                print get_4sq(item['contact']['twitter'])
+                try:
+                    #print get_4sq(item['contact']['twitter'])
+                    for t_url in get_4sq(item['contact']['twitter']):
+                        print t_url[0]['expanded_url']
+                except:
+                    pass
     return friends
 
 def crawl_web(seed):
