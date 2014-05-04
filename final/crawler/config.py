@@ -9,5 +9,5 @@
 # An application can make up to 500 userless requests to all other endpoints groups per hour.
 # 3600s/5000r = 0.72 s/r
 
-apiurl='https://api.foursquare.com/v2/users/%s?v=040914&oauth_token=MGRUDACH5ZCGPSEA5PJIOH05UKOUT1WYMRNDIHPVX5GV0TMA'
+apiurl='https://api.foursquare.com/v2/%s/%s?v=040914&oauth_token=MGRUDACH5ZCGPSEA5PJIOH05UKOUT1WYMRNDIHPVX5GV0TMA'
 userFile='users.dat'
