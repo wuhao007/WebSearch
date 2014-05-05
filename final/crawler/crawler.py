@@ -21,48 +21,89 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 user = api.me()
-def put_venue(id):
-    content = get_4sq_page('venues', id)
+def put_venue(venueid):
+    content = get_4sq_page('venues', venueid)
     venue = json.loads(content)['response']['venue']
-    print '_'.join(venue['name'].split()), 
-    location = venue['location']
-#print '_'.join(location.values())
-    print '_'.join([location['address'], location['crossStreet'], location['cc']])
+    #print '_'.join(venue['name'].split())
+    #print content
+    lat = ''
+    lng = ''
+    address = ''
+    if 'location' in venue:
+        location = venue['location']
+        lat = location['lat']
+        lng = location['lng']
+        address = '_'.join([location['address'], location['crossStreet'], location['postalCode'], location['cc'], location['city'], location['state'], location['country']]).replace(' ', '_')
+    #print '_'.join(location.values())
+    #print '_'.join([location['address'], location['crossStreet'], location['cc']])
+    #write_dat('venue', [venueid, venue['name'].replace (' ', '_'), location['lat'], location['lng']])
+    rating = 0
+    if 'rating' in venue:
+        rating = venue['rating']
+    #print venueid, venue['name'].replace(' ', '_'), lat, lng, str(rating), address
+    write_dat('venue', [venueid, venue['name'].replace(' ', '_'), lat, lng, str(rating), address])
 
-def get_venue(page):
+def write_dat(filename, content):
+    try:
+        with open('../data/' + filename + '.dat', 'a') as fout:
+            fout.write(' '.join(content) + '\n')
+            fout.close()
+    except IOError, e:
+        print "Cannot write out: " + str(e)
+
+def get_venue(userid, page):
     soup = BeautifulSoup(page)
     try:
         for link in soup.find_all('meta'):
             href = link.get('content')
             if href.startswith('https://foursquare.com/v/'):
-                put_venue(href.split('/')[-1])
+                venueid = href.split('/')[-1]
+
+                write_dat('checkin', [userid, venueid])
+
+                put_venue(venueid)
                 return
     except:
         pass
     return
 
 def get_4sq(friend_twitter):
-    print friend_twitter
+    #print friend_twitter
     return [page.entities['urls'] for page in api.user_timeline(id=friend_twitter) if page.source == 'foursquare']
 
-def get_all_friends(page):
+def get_all_friends(user1):
     friends = []
-    for group in json.loads(page)['response']['user']['friends']['groups']:
+    page = get_4sq_page('users', user1)
+    user = json.loads(page)['response']['user']
+    count = 0
+    if 'checkins' in user:
+        checkins = user['checkins']
+        if 'count' in checkins:
+            count = checkins['count']
+    #print user1, count
+    write_dat('user', [user1, user['firstName'], user['lastName'], str(count)])
+    for group in user['friends']['groups']:
         for item in group['items']:
+            user2 = item['id']
             friends.append(item['id'])
-            if 'contact' in item and 'twitter' in item['contact']:
-                try:
-                    for t_urls in get_4sq(item['contact']['twitter']):
-                        for t_url in t_urls:
-                            print t_url['expanded_url']
-                            get_venue(get_page(t_url['expanded_url']))
-                except tweepy.TweepError:
-                    time.sleep(60 * 15)
-                    continue
-                except StopIteration:
-                    break
-                except:
-                    pass
+
+            write_dat('friendship', [user1, user2])
+
+            if 'contact' in item:
+                contact = item['contact']
+                if 'twitter' in contact:
+                    try:
+                        for t_urls in get_4sq(contact['twitter']):
+                            for t_url in t_urls:
+                                #print t_url['expanded_url']
+                                get_venue(user2, get_page(t_url['expanded_url']))
+                    except tweepy.TweepError:
+                        time.sleep(60 * 2)
+                        continue
+                    except StopIteration:
+                        break
+                    except:
+                        pass
     return friends
 
 def crawl_web(seed):
@@ -70,13 +111,12 @@ def crawl_web(seed):
     crawled = []
     corpus = WebCorpus()
     while tocrawl:
-        id = tocrawl.pop()
-        if id not in crawled:
-            content = get_4sq_page('users', id)
-            friends = get_all_friends(content)
-            corpus.add_friend(id, friends)
+        user1 = tocrawl.pop()
+        if user1 not in crawled:
+            friends = get_all_friends(user1)
+            #corpus.add_friend(id, friends)
             tocrawl.update(friends)
-            crawled.append(id)
+            crawled.append(user1)
     return crawled
 
 # def crawl_web(seed): # returns index, graph of inlinks
