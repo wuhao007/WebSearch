@@ -20,6 +20,14 @@ auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
 
+def write_dat(filename, content):
+    try:
+        with open('../data/' + filename + '.dat', 'a') as fout:
+            fout.write(' '.join([str(word) for word in content]) + '\n')
+            fout.close()
+    except IOError, e:
+        print "Cannot write out: " + str(e)
+
 user = api.me()
 def put_venue(venueid):
     content = get_4sq_page('venues', venueid)
@@ -40,16 +48,8 @@ def put_venue(venueid):
     rating = 0
     if 'rating' in venue:
         rating = venue['rating']
-    #print venueid, venue['name'].replace(' ', '_'), lat, lng, str(rating), address
-    write_dat('venue', [venueid, venue['name'].replace(' ', '_'), lat, lng, str(rating), address])
-
-def write_dat(filename, content):
-    try:
-        with open('../data/' + filename + '.dat', 'a') as fout:
-            fout.write(' '.join(content) + '\n')
-            fout.close()
-    except IOError, e:
-        print "Cannot write out: " + str(e)
+    #print 'venue', [venueid, venue['name'].replace(' ', '_'), lat, lng, rating, address]
+    write_dat('venue', [venueid, venue['name'].replace(' ', '_'), lat, lng, rating, address])
 
 def get_venue(userid, page):
     soup = BeautifulSoup(page)
@@ -80,8 +80,8 @@ def get_all_friends(user1):
         checkins = user['checkins']
         if 'count' in checkins:
             count = checkins['count']
-    #print user1, count
-    write_dat('user', [user1, user['firstName'], user['lastName'], str(count)])
+    #print user, count
+    write_dat('user', [user1, user['firstName'], user['lastName'], user['homeCity'].replace(' ','_'), str(count)])
     for group in user['friends']['groups']:
         for item in group['items']:
             user2 = item['id']
