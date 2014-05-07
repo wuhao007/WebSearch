@@ -39,17 +39,17 @@ def put_venue(venueid):
     address = ''
     if 'location' in venue:
         location = venue['location']
-        lat = location['lat']
-        lng = location['lng']
-        address = '_'.join([location['address'], location['crossStreet'], location['postalCode'], location['cc'], location['city'], location['state'], location['country']]).replace(' ', '_')
+        lat = location['lat'] if 'lat' in location else 0
+        lng = location['lng'] if 'lng' in location else 0
+        #address = '_'.join([location['address'], location['crossStreet'], location['postalCode'], location['cc'], location['city'], location['state'], location['country']]).replace(' ', '_')
+        address = location['address'] if 'address' in location else 'address'
     #print '_'.join(location.values())
     #print '_'.join([location['address'], location['crossStreet'], location['cc']])
     #write_dat('venue', [venueid, venue['name'].replace (' ', '_'), location['lat'], location['lng']])
-    rating = 0
-    if 'rating' in venue:
-        rating = venue['rating']
+    rating = venue['rating'] if 'rating' in venue else 0
     #print 'venue', [venueid, venue['name'].replace(' ', '_'), lat, lng, rating, address]
-    write_dat('venue', [venueid, venue['name'].replace(' ', '_'), lat, lng, rating, address])
+    name = venue['name'] if 'name' in venue else 'name'
+    write_dat('venue', [venueid, name.replace(' ', '_'), lat, lng, rating, address.replace(' ','_')])
 
 def get_venue(userid, page):
     soup = BeautifulSoup(page)
@@ -81,10 +81,13 @@ def get_all_friends(user1):
         if 'count' in checkins:
             count = checkins['count']
     #print user, count
-    write_dat('user', [user1, user['firstName'], user['lastName'], user['homeCity'].replace(' ','_'), str(count)])
+    firstName = user['firstName'] if 'firstName' in user else 'firstName'
+    lastName = user['lastName'] if 'lastName' in user else 'lastName'
+    homeCity = user['homeCity'] if 'homeCity' in user else 'homeCity'
+    write_dat('user', [user1, firstName, lastName, homeCity.replace(' ','_'), count])
     for group in user['friends']['groups']:
         for item in group['items']:
-            user2 = item['id']
+            user2 = item['id'] if 'id' in item else 'user2'
             friends.append(item['id'])
 
             write_dat('friendship', [user1, user2])
