@@ -1,6 +1,6 @@
 __author__ = 'JeremyShi'
 
-DATAPATH='../_data'
+DATAPATH='../data'
 VENUEFILE='venue.dat'
 USERFILE='user.dat'
 CHECKINFILE='checkin.dat'

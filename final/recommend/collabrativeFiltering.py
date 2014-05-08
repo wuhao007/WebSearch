@@ -8,6 +8,13 @@ import sys
 import math
 import random
 
+VENUES=set()
+
+def printRecos(recos):
+    global VENUES
+    for rec in recos:
+        print VENUES[rec]
+
 def sample(all, fraction):
     return random.sample(all, int(math.ceil(fraction * len(all))))
 
@@ -29,20 +36,20 @@ def addCheckin(CHECKINS_PER_USER,userid,venueid):
     CHECKINS_PER_USER[userid]=checkins
 
 def loadVenues():
-    venues=dict()
+    global VENUES
+    VENUES=dict()
     with open(os.path.join(config.DATAPATH,config.VENUEFILE),'r') as f:
         next(f)
         for line in f:
             [venueid,name,lat,longt,rating,address]=line.rstrip().split(' ')
-            venues[venueid]=name
-    return venues
+            VENUES[venueid]=name
 
 def loadCheckins():
     CHECKINS_PER_USER=dict()
     with open(os.path.join(config.DATAPATH,config.CHECKINFILE),'r') as f:
         next(f)
         for line in f:
-            [checkinid,userid,venueid]=line.rstrip().split(' ')
+            [userid,venueid]=line.rstrip().split(' ')
             addCheckin(CHECKINS_PER_USER,userid,venueid)
 
     return CHECKINS_PER_USER
@@ -79,7 +86,7 @@ def evaluate(CHEKINS_PER_USER, active_users, test_set, user):
     CHEKINS_PER_USER[user] = CHEKINS_PER_USER[user].difference(held_out)
     neighborhood = knn(CHEKINS_PER_USER, active_users, test_set, user)
     recos = recommendations(CHEKINS_PER_USER, neighborhood)
-    print recos
+    printRecos(recos)
     if len(recos) == 0: return (0, 0)
     # precision = fraction of recos that are purchased
     precision = len(recos.intersection(CHEKINS_PER_USER[user].union(held_out))) / len(recos)
@@ -91,7 +98,8 @@ def evaluate(CHEKINS_PER_USER, active_users, test_set, user):
 
 def main():
     # load venues data
-    VENUES=loadVenues()
+    global VENUES
+    loadVenues()
     #get checkins per user
     CHECKINS_PER_USER=loadCheckins()
 
@@ -110,7 +118,7 @@ def main():
         total_recall += aggr_recall/len(test_set)
     P = total_precision/10
     R = total_recall/10
-    print P, R, (2 * P * R)/(P + R)
+    print P, R#, (2 * P * R)/(P + R)
 
 
 
