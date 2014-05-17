@@ -33,6 +33,8 @@ def write_dat(filename, content):
 #user = api.me()
 def put_venue(venueid):
     content = get_4sq_page('venues', venueid)
+    if content == None:
+        return
     venue = json.loads(content)['response']['venue']
     #print '_'.join(venue['name'].split())
     #print content
@@ -75,14 +77,17 @@ def get_4sq(friend_twitter):
 #return [page.entities['urls'] for page in api.user_timeline(id=friend_twitter) if page.source == 'foursquare']
     while True:
       try:
+          print friend_twitter
           timeline = api.user_timeline(id=friend_twitter)
       except tweepy.TweepError as e:
           print 'tweepy.TweepError'
-          print e.message
+          print e.message[0]
           print e.args
-          print "sleep"
-          time.sleep(60 * 2)
-          continue
+          if 'code' in e.message[0] and e.message[0]['code'] == 88:
+              print "sleep"
+              time.sleep(60 * 15)
+              continue
+          return urls
       except StopIteration:
           print 'StopIteration'
           return
@@ -98,6 +103,8 @@ def get_4sq(friend_twitter):
 def get_all_friends(user1):
     friends = []
     page = get_4sq_page('users', user1)
+    if page == None:
+        return friends
     user = json.loads(page)['response']['user']
     count = 0
     if 'checkins' in user:
@@ -122,7 +129,9 @@ def get_all_friends(user1):
                     for t_urls in get_4sq(contact['twitter']):
                         for t_url in t_urls:
                             #print t_url['expanded_url']
-                            get_venue(user2, get_page(t_url['expanded_url']))
+                            page = get_page(t_url['expanded_url'])
+                            if page != None:
+                                get_venue(user2, page)
     return friends
 
 def crawl_web(seed):
