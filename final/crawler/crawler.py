@@ -23,12 +23,14 @@ api = tweepy.API(auth)
 def write_dat(filename, content):
     try:
         with open('../data/' + filename + '.dat', 'a') as fout:
-            fout.write(' '.join([str(word) for word in content]) + '\n')
-            fout.close()
+            try:
+                fout.write(' '.join([str(word) for word in content]) + '\n')
+            except:
+                print "Cannot write out"
     except IOError, e:
         print "Cannot write out: " + str(e)
 
-user = api.me()
+#user = api.me()
 def put_venue(venueid):
     content = get_4sq_page('venues', venueid)
     venue = json.loads(content)['response']['venue']
@@ -69,7 +71,29 @@ def get_venue(userid, page):
 
 def get_4sq(friend_twitter):
     #print friend_twitter
-    return [page.entities['urls'] for page in api.user_timeline(id=friend_twitter) if page.source == 'foursquare']
+    urls = []
+#return [page.entities['urls'] for page in api.user_timeline(id=friend_twitter) if page.source == 'foursquare']
+    while True:
+      try:
+          timeline = api.user_timeline(id=friend_twitter)
+      except tweepy.TweepError as e:
+          print 'tweepy.TweepError'
+          print e.message
+          print e.args
+          print "sleep"
+          time.sleep(60 * 2)
+          continue
+      except StopIteration:
+          print 'StopIteration'
+          return
+      except:
+          print 'unkrown'
+          return
+      for page in timeline:
+          if page.source == 'foursquare':
+              urls += [page.entities['urls']]
+      break
+    return urls
 
 def get_all_friends(user1):
     friends = []
@@ -95,18 +119,10 @@ def get_all_friends(user1):
             if 'contact' in item:
                 contact = item['contact']
                 if 'twitter' in contact:
-                    try:
-                        for t_urls in get_4sq(contact['twitter']):
-                            for t_url in t_urls:
-                                #print t_url['expanded_url']
-                                get_venue(user2, get_page(t_url['expanded_url']))
-                    except tweepy.TweepError:
-                        time.sleep(60 * 2)
-                        continue
-                    except StopIteration:
-                        break
-                    except:
-                        pass
+                    for t_urls in get_4sq(contact['twitter']):
+                        for t_url in t_urls:
+                            #print t_url['expanded_url']
+                            get_venue(user2, get_page(t_url['expanded_url']))
     return friends
 
 def crawl_web(seed):
